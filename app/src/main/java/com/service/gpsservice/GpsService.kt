@@ -4,24 +4,18 @@ import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
-import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 
-class GpsService : Service()
-        , GoogleApiClient.ConnectionCallbacks
-        , GoogleApiClient.OnConnectionFailedListener {
+class GpsService : Service(){
 
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocationRequest: LocationRequest? = null
+    private var mFusedLocationClient: FusedLocationProviderClient? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -34,32 +28,23 @@ class GpsService : Service()
 
     override fun onDestroy() {
         super.onDestroy()
-        disconnect()
+        stopLocationUpdates()
     }
 
     private fun init(){
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build()
-        }
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient!!.connect()
-        }
-
         mLocationRequest = LocationRequest()
         mLocationRequest!!.interval = 1500
         mLocationRequest!!.fastestInterval = 5000
         mLocationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        startLocationUpdates()
     }
 
-    override fun onConnected(p0: Bundle?) {
+    private fun startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, locCallback, null)
+            mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, locCallback, null)
         }
     }
 
@@ -73,16 +58,8 @@ class GpsService : Service()
         }
     }
 
-    private fun disconnect(){
+    private fun stopLocationUpdates(){
         mGoogleApiClient!!.disconnect()
         LocationServices.getFusedLocationProviderClient(this).removeLocationUpdates(locCallback)
-    }
-
-    override fun onConnectionSuspended(p0: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
