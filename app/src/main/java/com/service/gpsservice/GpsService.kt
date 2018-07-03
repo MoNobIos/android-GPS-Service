@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.os.IBinder
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -62,5 +63,27 @@ class GpsService : Service(){
 
     private fun stopLocationUpdates(){
         LocationServices.getFusedLocationProviderClient(this).removeLocationUpdates(locCallback)
+    }
+
+    private fun testRun(){
+        val handler = Handler()
+        val runnable = object : Runnable {
+            internal var lastMinute = System.currentTimeMillis()
+            override fun run() {
+                try {
+                    if (System.currentTimeMillis() - lastMinute > 5000) {
+                        lastMinute = System.currentTimeMillis()
+                        val txt = "Time $lastMinute"
+                        Log.e("TEST_Run", txt)
+                        Toast.makeText(this@GpsService, txt, Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    // TODO: handle exception
+                } finally {
+                    handler.postDelayed(this, 5000)
+                }
+            }
+        }
+        handler.postDelayed(runnable, 5000)
     }
 }
