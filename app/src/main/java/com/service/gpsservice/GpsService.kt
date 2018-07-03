@@ -13,7 +13,6 @@ import com.google.android.gms.location.*
 
 class GpsService : Service(){
 
-    private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocationRequest: LocationRequest? = null
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
@@ -59,7 +58,6 @@ class GpsService : Service(){
     }
 
     private fun stopLocationUpdates(){
-        mGoogleApiClient!!.disconnect()
         LocationServices.getFusedLocationProviderClient(this).removeLocationUpdates(locCallback)
     }
 }
