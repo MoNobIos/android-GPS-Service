@@ -8,8 +8,11 @@ import android.os.IBinder
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 
 class GpsService : Service(){
 
@@ -32,8 +35,8 @@ class GpsService : Service(){
 
     private fun init(){
         mLocationRequest = LocationRequest()
-        mLocationRequest!!.interval = 1500
-        mLocationRequest!!.fastestInterval = 5000
+        mLocationRequest!!.interval = 30000
+        mLocationRequest!!.fastestInterval = 30000
         mLocationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
